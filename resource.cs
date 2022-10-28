@@ -326,21 +326,23 @@ namespace ACFramework
         // add more models here that you need in numerical order
         // then add to the array below in the same order
 
-        public static readonly int Gumby = 0; //Player
-        public static readonly int Kenny = 1; //Ally
-        public static readonly int Humvee = 2; //Boss
-        public static readonly int decepticon1 = 3; //Key
-        public static readonly int wraith2= 4; //Enemy
-        
+        public static readonly int Terminator = 0;
+        public static readonly int Bravo = 1;
+        public static readonly int Crafty = 2;
+        public static readonly int Megatron = 3;
+        public static readonly int Starwars_bdroid = 4;
+        public static readonly int Speedy = 5;
+        public static readonly int Ostrich = 6;
 
         // at least one must be set true
         private static readonly ModelsMD2Info[] minfo = {
-            new ModelsMD2Info( "gumby", "Gumbyskin.pcx", 0.1f, false ),
-            new ModelsMD2Info( "kenny", "Kenny.pcx", 0.1f, true ),
-            new ModelsMD2Info( "humvee", "humvee.pcx", 0.2f, true ),
-            new ModelsMD2Info( "decepticon1", "antispice.pcx", 0.1f, true ),
-            new ModelsMD2Info( "wraith2", "ctf_r.pcx", 0.2f, true ),
-            
+            new ModelsMD2Info( "Terminator", "chaos.pcx", 0.1f, true ),
+            new ModelsMD2Info( "Bravo", "bravo.pcx", 0.1f, true ),
+            new ModelsMD2Info( "Crafty", "Electra.pcx", 0.2f, true ),
+            new ModelsMD2Info( "Megatron", "megatron.pcx", 0.1f, true ),
+            new ModelsMD2Info( "Starwars_bdroid", "security.pcx", 0.2f, true ),
+            new ModelsMD2Info( "Speedy", "speedy.pcx", 0.2f, true ),
+            new ModelsMD2Info( "Ostrich", "ctf_r.pcx", 0.2f, true )
         };            
 
         private static int[] randomCritters;
