@@ -34,7 +34,25 @@ namespace ACFramework
         public static readonly int Sky = 6;
         public static readonly int Wood2 = 7;
         public static readonly int Concrete = 8;
-        
+        public static readonly int Floor1 = 9;
+        public static readonly int Graphics2 = 10;
+        public static readonly int Metal1 = 11;
+        public static readonly int Pebbles = 12;
+        public static readonly int Sand = 13;
+        public static readonly int Sky2 = 14;
+        public static readonly int Stones1 = 15;
+        public static readonly int Stones2 = 16;
+        public static readonly int Stones3 = 17;
+        public static readonly int Wall1 = 18;
+        public static readonly int Wall4 = 19;
+        public static readonly int Wall5 = 20;
+        public static readonly int Wall6 = 21;
+        public static readonly int Water1 = 22;
+        public static readonly int Water2 = 23;
+        public static readonly int Wood1 = 24;
+
+
+
 
         private static readonly string[] Bitmap = new string[] {
                 "dummy", // nonexistent, used as placeholder -- JC
@@ -45,7 +63,23 @@ namespace ACFramework
                 "graphics3.bmp",
                 "sky.bmp",
                 "wood2.bmp",
-                "concrete1.bmp"
+                "concrete1.bmp",
+                "floor1.bmp",
+                "graphics2.bmp",
+                "metal1.bmp",
+                "pebbles.bmp",
+                "sand.bmp",
+                "sky2.bmp",
+                "stones1.bmp",
+                "stones2.bmp",
+                "stones3.bmp",
+                "wall1.bmp",
+                "wall4.bmp",
+                "wall5.bmp",
+                "wall6.bmp",
+                "water1.bmp",
+                "water2.bmp",
+                "wood1.bmp"
             };
 
         public BitmapRes()
@@ -67,6 +101,11 @@ namespace ACFramework
             }
         }
 
+        public static int getRandomBitmap()
+        {
+            int selection = (int)Framework.randomOb.random((uint)Bitmap.Length);
+            return selection;
+        }
     }
 
     class Sound
@@ -333,6 +372,8 @@ namespace ACFramework
         public static readonly int Starwars_bdroid = 4;
         public static readonly int Speedy = 5;
         public static readonly int Ostrich = 6;
+        public static bool newAlly;
+        public static bool newEnemy;
 
         // at least one must be set true
         private static readonly ModelsMD2Info[] minfo = {
@@ -385,6 +426,15 @@ namespace ACFramework
 
         public int selectRandomCritter()
         {
+            if (newAlly)
+            {
+                return 6;
+            }
+            if (newEnemy)
+            {
+                return 5;
+            }
+            
             int selection = (int)Framework.randomOb.random((uint)randomCritters.Length);
             return randomCritters[selection];
         }

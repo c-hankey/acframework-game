@@ -55,12 +55,13 @@ namespace ACFramework
 			MaxSpeed =  cGame3D.MAXPLAYERSPEED; 
 			AbsorberFlag = true; //Keeps player from being buffeted about.
 			ListenerAcceleration = 160.0f; //So Hopper can overcome gravity.  Only affects hop.
-		
-            // YHopper hop strength 12.0
-			Listener = new cListenerScooterYHopper( 0.2f, 12.0f ); 
-            // the two arguments are walkspeed and hop strength -- JC
-            
-            addForce( new cForceGravity( 50.0f )); /* Uses  gravity. Default strength is 25.0.
+
+			// YHopper hop strength 12.0
+			//Listener = new cListenerScooterYHopper( 0.2f, 12.0f ); 
+			Listener = new cListenerScooterLevitator();
+			// the two arguments are walkspeed and hop strength -- JC
+
+			addForce( new cForceGravity( 50.0f )); /* Uses  gravity. Default strength is 25.0.
 			Gravity	will affect player using cListenerHopper. */ 
 			AttitudeToMotionLock = false; //It looks nicer is you don't turn the player with motion.
 			Attitude = new cMatrix3( new cVector3(0.0f, 0.0f, -1.0f), new cVector3( -1.0f, 0.0f, 0.0f ), 
@@ -70,12 +71,12 @@ namespace ACFramework
         public override void update(ACView pactiveview, float dt)
         {
             base.update(pactiveview, dt); //Always call this first
-            if (!warningGiven && distanceTo(new cVector3(Game.Border.Lox, Game.Border.Loy,
+            /*if (!warningGiven && distanceTo(new cVector3(Game.Border.Lox, Game.Border.Loy,
                 Game.Border.Midz)) < 3.0f)
             {
                 warningGiven = true;
                 MessageBox.Show("DON'T GO THROUGH THAT DOOR!!!  DON'T EVEN THINK ABOUT IT!!!");
-            }
+            }*/
  
         } 
 
@@ -158,37 +159,45 @@ namespace ACFramework
         public cCritter3Dcharacter( cGame pownergame ) 
             : base( pownergame ) 
 		{
+			//If we want to add different forces to the enemy and ally, remove the following two lines and add to the respective classes
             addForce(new cForceGravity(25.0f, new cVector3( 0.0f, -1, 0.00f ))); 
 			addForce( new cForceDrag( 20.0f ) );  // default friction strength 0.5 
 			Density = 2.0f; 
 			MaxSpeed = 30.0f;
-            if (pownergame != null) //Just to be safe.
-                Sprite = new cSpriteQuake(Framework.models.selectRandomCritter());
+			Bounciness = 0.0f;
+			setRadius(1.0f);
+			MinTwitchThresholdSpeed = 4.0f;
+			_wrapflag = cCritter.BOUNCE;
+
+           // if (pownergame != null) //Just to be safe.
+                //Sprite = new cSpriteQuake(Framework.models.selectRandomCritter());
             
             // example of setting a specific model
             // setSprite(new cSpriteQuake(ModelsMD2.Knight));
             
-            if ( Sprite is cSpriteQuake ) //Don't let the figurines tumble.  
+            /*if ( Sprite is cSpriteQuake ) //Don't let the figurines tumble.  
 			{ 
 				AttitudeToMotionLock = false;   
 				Attitude = new cMatrix3( new cVector3( 0.0f, 0.0f, 1.0f ), 
                     new cVector3( 1.0f, 0.0f, 0.0f ), 
                     new cVector3( 0.0f, 1.0f, 0.0f ), Position); 
-				/* Orient them so they are facing towards positive Z with heads towards Y. */ 
-			} 
-			Bounciness = 0.0f; //Not 1.0 means it loses a bit of energy with each bounce.
-			setRadius( 1.0f );
-            MinTwitchThresholdSpeed = 4.0f; //Means sprite doesn't switch direction unless it's moving fast 
-			randomizePosition( new cRealBox3( new cVector3( _movebox.Lox, _movebox.Loy, _movebox.Loz + 4.0f), 
-				new cVector3( _movebox.Hix, _movebox.Loy, _movebox.Midz - 1.0f))); 
+				/* Orient them so they are facing towards positive Z with heads towards Y. 
+			} */
+
+
+			//Bounciness = 0.0f; //Not 1.0 means it loses a bit of energy with each bounce.
+			//setRadius( 1.0f );
+            //MinTwitchThresholdSpeed = 4.0f; //Means sprite doesn't switch direction unless it's moving fast 
+			//randomizePosition( new cRealBox3( new cVector3( _movebox.Lox, _movebox.Loy, _movebox.Loz + 4.0f), 
+				//new cVector3( _movebox.Hix, _movebox.Loy, _movebox.Midz - 1.0f))); 
 				/* I put them ahead of the player  */ 
-			randomizeVelocity( 0.0f, 30.0f, false ); 
+			//randomizeVelocity( 0.0f, 30.0f, false ); 
 
                         
-			if ( pownergame != null ) //Then we know we added this to a game so pplayer() is valid 
-				addForce( new cForceObjectSeek( Player, 0.5f ));
+			//if ( pownergame != null ) //Then we know we added this to a game so pplayer() is valid 
+				//addForce( new cForceObjectSeek( Player, 0.5f ));
 
-            int begf = Framework.randomOb.random(0, 171);
+            /*int begf = Framework.randomOb.random(0, 171);
             int endf = Framework.randomOb.random(0, 171);
 
             if (begf > endf)
@@ -198,19 +207,18 @@ namespace ACFramework
                 endf = temp;
             }
 
-			Sprite.setstate( State.Other, begf, endf, StateType.Repeat );
+			Sprite.setstate( State.Other, begf, endf, StateType.Repeat );*/
 
 
-            _wrapflag = cCritter.BOUNCE;
-
+           // _wrapflag = cCritter.BOUNCE;
 		} 
 
 		
 		public override void update( ACView pactiveview, float dt ) 
 		{ 
 			base.update( pactiveview, dt ); //Always call this first
-			if ( (_outcode & cRealBox3.BOX_HIZ) != 0 ) /* use bitwise AND to check if a flag is set. */ 
-				delete_me(); //tell the game to remove yourself if you fall up to the hiz.
+			//if ( (_outcode & cRealBox3.BOX_HIZ) != 0 ) /* use bitwise AND to check if a flag is set. */ 
+				//delete_me(); //tell the game to remove yourself if you fall up to the hiz.
         } 
 
 		// do a delete_me if you hit the left end 
@@ -229,6 +237,124 @@ namespace ACFramework
             }
         }
 	} 
+	
+	class cCritter3DAlly : cCritter3Dcharacter
+    {
+		int ally = 3;
+		public cCritter3DAlly( cGame pownergame )
+			: base(pownergame)
+        {
+			if(pownergame != null)
+				Sprite = new cSpriteQuake(ally);
+			
+			//Changes the attitude of the ally
+			if (Sprite is cSpriteQuake) //Don't let the figurines tumble.  
+			{
+				AttitudeToMotionLock = false;
+				Attitude = new cMatrix3(new cVector3(0.0f, 0.0f, 1.0f),
+					new cVector3(1.0f, 0.0f, 0.0f),
+					new cVector3(0.0f, 1.0f, 0.0f), Position);
+				/* Orient them so they are facing towards positive Z with heads towards Y. */
+			}
+
+			//Randomize position or move anywhere
+			randomizePosition(new cRealBox3(new cVector3(_movebox.Lox, _movebox.Loy, _movebox.Loz + 4.0f),
+				new cVector3(_movebox.Hix, _movebox.Loy, _movebox.Midz - 1.0f)));
+			/* I put them ahead of the player  */
+			randomizeVelocity(0.0f, 30.0f, false);
+
+
+			//if (pownergame != null) //Then we know we added this to a game so pplayer() is valid 
+				//addForce(new cForceObjectSeek(Player, 0.5f));
+
+			int begf = Framework.randomOb.random(0, 171);
+			int endf = Framework.randomOb.random(0, 171);
+
+			if (begf > endf)
+			{
+				int temp = begf;
+				begf = endf;
+				endf = temp;
+			}
+
+			Sprite.setstate(State.Other, begf, endf, StateType.Repeat);
+		}
+		public override void die()
+		{
+			Player.addScore(Value);
+			base.die();
+		}
+
+		public override string RuntimeClass
+		{
+			get
+			{
+				return "cCritter3DAlly";
+			}
+		}
+	}
+
+	class cCritter3DEnemy : cCritter3Dcharacter
+    {
+		int enemy = 1;
+		public cCritter3DEnemy( cGame pownergame )
+			: base(pownergame)
+        {
+			//Can add out own force to control the enemy
+
+			//New sprite with the enemy skin
+			if (pownergame != null) //Just to be safe.
+				Sprite = new cSpriteQuake(enemy);
+			
+			//Set attitude of enemy
+			if (Sprite is cSpriteQuake) //Don't let the figurines tumble.  
+			{
+				AttitudeToMotionLock = false;
+				Attitude = new cMatrix3(new cVector3(0.0f, 0.0f, 1.0f),
+					new cVector3(1.0f, 0.0f, 0.0f),
+					new cVector3(0.0f, 1.0f, 0.0f), Position);
+				/* Orient them so they are facing towards positive Z with heads towards Y. */
+			}
+
+			//Set position
+			randomizePosition(new cRealBox3(new cVector3(_movebox.Lox, _movebox.Loy, _movebox.Loz + 4.0f),
+				new cVector3(_movebox.Hix, _movebox.Loy, _movebox.Midz - 1.0f)));
+			/* I put them ahead of the player  */
+			randomizeVelocity(0.0f, 30.0f, false);
+
+
+			if (pownergame != null) //Then we know we added this to a game so pplayer() is valid 
+				addForce(new cForceObjectSeek(Player, 0.5f));
+
+
+			//Randomize frames of state -- can set later
+			int begf = Framework.randomOb.random(0, 171);
+			int endf = Framework.randomOb.random(0, 171);
+
+			if (begf > endf)
+			{
+				int temp = begf;
+				begf = endf;
+				endf = temp;
+			}
+
+			Sprite.setstate(State.Other, begf, endf, StateType.Repeat);
+		}
+
+		public override void die()
+		{
+			Player.addScore(Value);
+			base.die();
+		}
+
+		public override string RuntimeClass
+		{
+			get
+			{
+				return "cCritter3DEnemy";
+			}
+		}
+	}
 	
 	class cCritterTreasure : cCritter 
 	{   // Try jumping through this hoop
@@ -304,6 +430,8 @@ namespace ACFramework
         private bool doorcollision;
         private bool wentThrough = false;
         private float startNewRoom;
+		private bool[] nextRoom = new bool[4];
+		private int rand = 1;
 		
 		public cGame3D() 
 		{
@@ -316,34 +444,53 @@ namespace ACFramework
 			cRealBox3 skeleton = new cRealBox3();
             skeleton.copy(_border);
 			setSkyBox( skeleton );
+
+
 		/* In this world the coordinates are screwed up to match the screwed up
 		listener that I use.  I should fix the listener and the coords.
 		Meanwhile...
 		I am flying into the screen from HIZ towards LOZ, and
 		LOX below and HIX above and
 		LOY on the right and HIY on the left. */ 
-			SkyBox.setSideSolidColor( cRealBox3.HIZ, Color.Aqua ); //Make the near HIZ transparent 
+		/*	SkyBox.setSideSolidColor( cRealBox3.HIZ, Color.Aqua ); //Make the near HIZ transparent 
 			SkyBox.setSideSolidColor( cRealBox3.LOZ, Color.Aqua ); //Far wall 
 			SkyBox.setSideSolidColor( cRealBox3.LOX, Color.DarkOrchid ); //left wall 
             SkyBox.setSideTexture( cRealBox3.HIX, BitmapRes.Wall2, 2 ); //right wall 
 			SkyBox.setSideTexture( cRealBox3.LOY, BitmapRes.Graphics3 ); //floor 
 			SkyBox.setSideTexture( cRealBox3.HIY, BitmapRes.Sky ); //ceiling 
-		
-			WrapFlag = cCritter.BOUNCE; 
-			_seedcount = 7; 
-			setPlayer( new cCritter3DPlayer( this )); 
-			_ptreasure = new cCritterTreasure( this );
+		*/
+
+			/****RANDOM TEXTURES FOR WALLS****/
+			SkyBox.setSideTexture(cRealBox3.HIZ, BitmapRes.getRandomBitmap()); //Make the near HIZ transparent 
+			SkyBox.setSideTexture(cRealBox3.LOZ, BitmapRes.getRandomBitmap()); //Far wall 
+			SkyBox.setSideTexture(cRealBox3.LOX, BitmapRes.getRandomBitmap()); //left wall 
+			SkyBox.setSideTexture(cRealBox3.HIX, BitmapRes.getRandomBitmap()); //right wall 
+			SkyBox.setSideTexture(cRealBox3.LOY, BitmapRes.getRandomBitmap()); //floor 
+			SkyBox.setSideTexture(cRealBox3.HIY, BitmapRes.getRandomBitmap()); //ceiling 
+
+			//WrapFlag = cCritter.BOUNCE; 
+			_seedcount = 0;
+			seedAlly();
+			seedEnemy();
+
+
+			setPlayer( new cCritter3DPlayer( this ));
+
+
+			/*_ptreasure = new cCritterTreasure( this );
             shape = new cCritterShape(this);
             shape.Sprite = new cSphere( 3, Color.DarkBlue );
-            shape.moveTo(new cVector3( Border.Midx, Border.Hiy, Border.Midz ));
+            shape.moveTo(new cVector3( Border.Midx, Border.Hiy, Border.Midz ));*/
 
 			/* In this world the x and y go left and up respectively, while z comes out of the screen.
 		A wall views its "thickness" as in the y direction, which is up here, and its
-		"height" as in the z direction, which is into the screen. */ 
+		"height" as in the z direction, which is into the screen. */
 			//First draw a wall with dy height resting on the bottom of the world.
-			float zpos = 0.0f; /* Point on the z axis where we set down the wall.  0 would be center,
-			halfway down the hall, but we can offset it if we like. */ 
-			float height = 0.1f * _border.YSize; 
+
+
+			/*float zpos = 0.0f; /* Point on the z axis where we set down the wall.  0 would be center,
+			halfway down the hall, but we can offset it if we like. */
+			/*float height = 0.1f * _border.YSize; 
 			float ycenter = -_border.YRadius + height / 2.0f; 
 			float wallthickness = cGame3D.WALLTHICKNESS;
             cCritterWall pwall = new cCritterWall( 
@@ -356,12 +503,12 @@ namespace ACFramework
 			cSpriteTextureBox pspritebox = 
 				new cSpriteTextureBox( pwall.Skeleton, BitmapRes.Wall3, 16 ); //Sets all sides 
 				/* We'll tile our sprites three times along the long sides, and on the
-			short ends, we'll only tile them once, so we reset these two. */
-          pwall.Sprite = pspritebox; 
-		
-		
+			short ends, we'll only tile them once, so we reset these two. 
+          pwall.Sprite = pspritebox; */
+
+
 			//Then draw a ramp to the top of the wall.  Scoot it over against the right wall.
-			float planckwidth = 0.75f * height; 
+			/*float planckwidth = 0.75f * height; 
 			pwall = new cCritterWall( 
 				new cVector3( _border.Hix -planckwidth / 2.0f, _border.Loy, _border.Hiz - 2.0f), 
 				new cVector3( _border.Hix - planckwidth / 2.0f, _border.Loy + height, zpos ), 
@@ -371,17 +518,42 @@ namespace ACFramework
 				this );
             cSpriteTextureBox stb = new cSpriteTextureBox(pwall.Skeleton, 
                 BitmapRes.Wood2, 2 );
-            pwall.Sprite = stb;
-		
-			cCritterDoor pdwall = new cCritterDoor( 
+            pwall.Sprite = stb;*/
+
+			Player.moveTo(new cVector3(0.0f, -7.6f, 29.0f));
+
+
+			cCritterDoor pdwall1 = new cCritterDoor( 
 				new cVector3( _border.Lox, _border.Loy, _border.Midz ), 
 				new cVector3( _border.Lox, _border.Midy - 3, _border.Midz ), 
 				0.1f, 2, this ); 
-			cSpriteTextureBox pspritedoor = 
-				new cSpriteTextureBox( pdwall.Skeleton, BitmapRes.Door ); 
-			pdwall.Sprite = pspritedoor;
+			cSpriteTextureBox pspritedoor1 = 
+				new cSpriteTextureBox( pdwall1.Skeleton, BitmapRes.Door ); 
+			pdwall1.Sprite = pspritedoor1;
 
-             
+			cCritterDoor pdwall2 = new cCritterDoor(
+				new cVector3(_border.Midx, _border.Loy, _border.Loz),
+				new cVector3(_border.Midx, _border.Midy - 3, _border.Loz),
+				2, 0.1f, this);
+			cSpriteTextureBox pspritedoor2 =
+				new cSpriteTextureBox(pdwall2.Skeleton, BitmapRes.Door);
+			pdwall2.Sprite = pspritedoor2;
+
+			cCritterDoor pdwall3 = new cCritterDoor(
+				new cVector3(_border.Hix, _border.Loy, _border.Midz),
+				new cVector3(_border.Hix, _border.Midy - 3, _border.Midz),
+				0.1f, 2, this);
+			cSpriteTextureBox pspritedoor3 =
+				new cSpriteTextureBox(pdwall3.Skeleton, BitmapRes.Door);
+			pdwall3.Sprite = pspritedoor3;
+
+			cCritterDoor pdwall4 = new cCritterDoor(
+				new cVector3(_border.Midx, _border.Loy, _border.Hiz),
+				new cVector3(_border.Midx, _border.Midy - 3, _border.Hiz),
+				2, 0.1f, this);
+			cSpriteTextureBox pspritedoor4 =
+				new cSpriteTextureBox(pdwall4.Skeleton, BitmapRes.Door);
+			pdwall4.Sprite = pspritedoor4;
 		} 
 
         public void setRoom1( )
@@ -418,18 +590,89 @@ namespace ACFramework
             wentThrough = true;
             startNewRoom = Age;
         }
+
+		public void resetRoom()
+        {
+			//(1) Purge all critters and trap walls
+			Biota.purgeCritters<cCritter3Dcharacter>();
+
+			//(2) Identify what the next room has
+				//Do this by having random sets for collapse (0), trap (1), ally (2), and enemy (3)
+			for(int i = 0; i < 4; i++)
+            {
+				//nextRoom[i] = Framework.randomOb.randomBOOL();
+			}
+
+			nextRoom[2] = true;
+			nextRoom[3] = true;
+
+			if(nextRoom[0] == true)
+            {
+				//Set collapseable walls
+            }
+			if(nextRoom[1] == true)
+            {
+				//Set a trap
+            }
+			if(nextRoom[2] == true)
+            {
+				//Spawn an ally
+				//_seedcount = 1;
+				//ModelsMD2.newAlly = true;
+				seedAlly();
+            }
+			if(nextRoom[3] == true)
+            {
+				//Spawn an enemy
+				_seedcount = 1;
+				//ModelsMD2.newEnemy = true;
+				seedEnemy();
+            }
+			if(nextRoom[2] && nextRoom[3])
+            {
+				//Spawn both an enemy and an ally
+				//_seedcount = 2;
+            }
+
+
+			//Move player back to OG position
+			Player.moveTo(new cVector3(0.0f, -7.6f, 29.0f));
+			Player.Attitude = new cMatrix3(new cVector3(0.0f, 0.0f, -1.0f), new cVector3(-1.0f, 0.0f, 0.0f),
+				new cVector3(0.0f, 1.0f, 0.0f), Player.Position);
+
+			//Randomize wall textures
+			SkyBox.setSideTexture(cRealBox3.HIZ, BitmapRes.getRandomBitmap()); //Make the near HIZ transparent 
+			SkyBox.setSideTexture(cRealBox3.LOZ, BitmapRes.getRandomBitmap()); //Far wall 
+			SkyBox.setSideTexture(cRealBox3.LOX, BitmapRes.getRandomBitmap()); //left wall 
+			SkyBox.setSideTexture(cRealBox3.HIX, BitmapRes.getRandomBitmap()); //right wall 
+			SkyBox.setSideTexture(cRealBox3.LOY, BitmapRes.getRandomBitmap()); //floor 
+			SkyBox.setSideTexture(cRealBox3.HIY, BitmapRes.getRandomBitmap()); //ceiling 
+		}
 		
 		public override void seedCritters() 
 		{
-			Biota.purgeCritters<cCritterBullet>(); 
-			Biota.purgeCritters<cCritter3Dcharacter>();
+			//Biota.purgeCritters<cCritterBullet>(); 
+			//Biota.purgeCritters<cCritter3Dcharacter>();
             for (int i = 0; i < _seedcount; i++) 
 				new cCritter3Dcharacter( this );
-            Player.moveTo(new cVector3(0.0f, Border.Loy, Border.Hiz - 3.0f)); 
-				/* We start at hiz and move towards	loz */ 
-		} 
+		}
 
-		
+		public void seedEnemy()
+		{
+			//Biota.purgeCritters<cCritter3Dcharacter>();
+			//Biota.purgeCritters<cCritter3DEnemy>();
+			for (int i = 0; i < _enemycount; i++)
+				new cCritter3DEnemy(this);
+		}
+
+		public void seedAlly()
+		{
+			//Biota.purgeCritters<cCritter3Dcharacter>();
+			//Biota.purgeCritters<cCritter3DAlly>();
+			for (int i = 0; i < _allycount; i++)
+				new cCritter3DAlly(this);
+		}
+
 		public void setdoorcollision( ) { doorcollision = true; } 
 		
 		public override ACView View 
@@ -485,21 +728,15 @@ namespace ACFramework
 			} 
 		// (2) Also don't let the the model count diminish.
 					//(need to recheck propcount in case we just called seedCritters).
-			int modelcount = Biota.count<cCritter3Dcharacter>(); 
-			int modelstoadd = _seedcount - modelcount; 
-			for ( int i = 0; i < modelstoadd; i++) 
-				new cCritter3Dcharacter( this ); 
-		// (3) Maybe check some other conditions.
+			//int modelcount = Biota.count<cCritter3Dcharacter>(); 
+			//int modelstoadd = _seedcount - modelcount; 
+			/*for ( int i = 0; i < modelstoadd; i++) 
+				new cCritter3Dcharacter( this ); */
 
-            if (wentThrough && (Age - startNewRoom) > 2.0f)
-            {
-                MessageBox.Show("What an idiot.");
-                wentThrough = false;
-            }
-
+			//Check if player went through doorway
             if (doorcollision == true)
             {
-                setRoom1();
+				resetRoom();
                 doorcollision = false;
             }
 		} 
